@@ -70,9 +70,11 @@ namespace ItemManager
 			public ConfigEntry<CraftingTable> table = null!;
 			public ConfigEntry<int> tableLevel = null!;
 			public ConfigEntry<string> customTable = null!;
+			public ConfigEntry<int>? maximumTableLevel;
 		}
 
 		private static readonly List<Item> registeredItems = new();
+		private static readonly Dictionary<ItemDrop, Item> itemDropMap = new();
 		private static Dictionary<Item, List<Recipe>> activeRecipes = new();
 		private static Dictionary<Item, ItemConfig> itemConfigs = new();
 
@@ -106,6 +108,12 @@ namespace ItemManager
 		/// <para>Defaults to 1.</para>
 		/// </summary>
 		public int CraftAmount = 1;
+		
+		/// <summary>
+		/// Specifies the maximum required crafting station level to upgrade and repair the item.
+		/// <para>Default is calculated from crafting station level and maximum quality.</para>
+		/// </summary>
+		public int MaximumRequiredStationLevel = int.MaxValue;
 
 		private LocalizeKey? _name;
 
@@ -113,7 +121,7 @@ namespace ItemManager
 		{
 			get
 			{
-				if (_name is LocalizeKey name)
+				if (_name is { } name)
 				{
 					return name;
 				}
@@ -139,7 +147,7 @@ namespace ItemManager
 		{
 			get
 			{
-				if (_description is LocalizeKey description)
+				if (_description is { } description)
 				{
 					return description;
 				}
@@ -167,6 +175,7 @@ namespace ItemManager
 		{
 			Prefab = PrefabManager.RegisterPrefab(bundle, prefabName);
 			registeredItems.Add(this);
+			itemDropMap[Prefab.GetComponent<ItemDrop>()] = this;
 		}
 
 		private class ConfigurationManagerAttributes
@@ -239,6 +248,10 @@ namespace ItemManager
 								activeRecipes[item].First().m_minStationLevel = cfg.tableLevel.Value;
 							}
 						};
+						if (item.Prefab.GetComponent<ItemDrop>().m_itemData.m_shared.m_maxQuality > 1)
+						{
+							cfg.maximumTableLevel = config(localizedName, "Maximum Crafting Station Level", item.MaximumRequiredStationLevel == int.MaxValue ? item.Crafting.Stations.First().level + item.Prefab.GetComponent<ItemDrop>().m_itemData.m_shared.m_maxQuality - 1 : item.MaximumRequiredStationLevel, new ConfigDescription($"Maximum crafting station level to upgrade and repair {localizedName}.", null, tableLevelAttributes));
+						}
 
 						ConfigEntry<string> itemConfig(string name, string value, string desc)
 						{
@@ -301,7 +314,7 @@ namespace ItemManager
 					}
 					else if ((cfg == null || recipes.Count > 0 ? station.Table : cfg.table.Value) is CraftingTable.Custom)
 					{
-						if (ZNetScene.instance.GetPrefab(cfg == null || recipes.Count > 0 ? station.custom : cfg.customTable.Value) is GameObject craftingTable)
+						if (ZNetScene.instance.GetPrefab(cfg == null || recipes.Count > 0 ? station.custom : cfg.customTable.Value) is { } craftingTable)
 						{
 							recipe.m_craftingStation = craftingTable.GetComponent<CraftingStation>();
 						}
@@ -322,6 +335,14 @@ namespace ItemManager
 				activeRecipes[item] = recipes;
 
 				__instance.m_recipes.AddRange(recipes);
+			}
+		}
+
+		internal static void Patch_MaximumRequiredStationLevel(Recipe __instance, ref int __result, int quality)
+		{
+			if (itemDropMap.TryGetValue(__instance.m_item, out Item item))
+			{
+				__result = Mathf.Min(Mathf.Max(1, __instance.m_minStationLevel) + (quality - 1), itemConfigs[item].maximumTableLevel?.Value ?? item.MaximumRequiredStationLevel);
 			}
 		}
 
@@ -423,10 +444,10 @@ namespace ItemManager
 					return item;
 				}
 
-				Dictionary<string, Piece.Requirement?> resources = craft.Reqs.Where(r => r.itemName != "").ToDictionary(r => r.itemName, r => ResItem(r) is ItemDrop item ? new Piece.Requirement { m_amount = r.amount, m_resItem = item, m_amountPerLevel = 0 } : null);
+				Dictionary<string, Piece.Requirement?> resources = craft.Reqs.Where(r => r.itemName != "").ToDictionary(r => r.itemName, r => ResItem(r) is { } item ? new Piece.Requirement { m_amount = r.amount, m_resItem = item, m_amountPerLevel = 0 } : null);
 				foreach (Requirement req in upgrade.Reqs.Where(r => r.itemName != ""))
 				{
-					if ((!resources.TryGetValue(req.itemName, out Piece.Requirement? requirement) || requirement == null) && ResItem(req) is ItemDrop item)
+					if ((!resources.TryGetValue(req.itemName, out Piece.Requirement? requirement) || requirement == null) && ResItem(req) is { } item)
 					{
 						requirement = resources[req.itemName] = new Piece.Requirement { m_resItem = item, m_amount = 0 };
 					}
@@ -458,7 +479,27 @@ namespace ItemManager
 		}
 
 		private static BaseUnityPlugin? _plugin;
-		private static BaseUnityPlugin plugin => _plugin ??= (BaseUnityPlugin)BepInEx.Bootstrap.Chainloader.ManagerObject.GetComponent(Assembly.GetExecutingAssembly().DefinedTypes.First(t => t.IsClass && typeof(BaseUnityPlugin).IsAssignableFrom(t)));
+
+		private static BaseUnityPlugin plugin
+		{
+			get
+			{
+				if (_plugin is null)
+				{
+					IEnumerable<TypeInfo> types;
+					try
+					{
+						types = Assembly.GetExecutingAssembly().DefinedTypes.ToList();
+					}
+					catch (ReflectionTypeLoadException e)
+					{
+						types = e.Types.Where(t => t != null).Select(t => t.GetTypeInfo());
+					}
+					_plugin = (BaseUnityPlugin)BepInEx.Bootstrap.Chainloader.ManagerObject.GetComponent(types.First(t => t.IsClass && typeof(BaseUnityPlugin).IsAssignableFrom(t)));
+				}
+				return _plugin;
+			}
+		}
 
 		private static bool hasConfigSync = true;
 		private static object? _configSync;
@@ -469,7 +510,7 @@ namespace ItemManager
 			{
 				if (_configSync == null && hasConfigSync)
 				{
-					if (Assembly.GetExecutingAssembly().GetType("ServerSync.ConfigSync") is Type configSyncType)
+					if (Assembly.GetExecutingAssembly().GetType("ServerSync.ConfigSync") is { } configSyncType)
 					{
 						_configSync = Activator.CreateInstance(configSyncType, plugin.Info.Metadata.GUID + " ItemManager");
 						configSyncType.GetField("CurrentVersion").SetValue(_configSync, plugin.Info.Metadata.Version.ToString());
@@ -565,6 +606,7 @@ namespace ItemManager
 			harmony.Patch(AccessTools.DeclaredMethod(typeof(FejdStartup), nameof(FejdStartup.Awake)), new HarmonyMethod(AccessTools.DeclaredMethod(typeof(Item), nameof(Item.Patch_FejdStartup))));
 			harmony.Patch(AccessTools.DeclaredMethod(typeof(ZNetScene), nameof(ZNetScene.Awake)), new HarmonyMethod(AccessTools.DeclaredMethod(typeof(PrefabManager), nameof(Patch_ZNetSceneAwake))));
 			harmony.Patch(AccessTools.DeclaredMethod(typeof(InventoryGui), nameof(InventoryGui.UpdateRecipe)), transpiler: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(Item), nameof(Item.Transpile_InventoryGui))));
+			harmony.Patch(AccessTools.DeclaredMethod(typeof(Recipe), nameof(Recipe.GetRequiredStationLevel)), postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(Item), nameof(Item.Patch_MaximumRequiredStationLevel))));
 		}
 
 		private struct BundleId
