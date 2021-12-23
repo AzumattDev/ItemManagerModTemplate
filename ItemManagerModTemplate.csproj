@@ -103,6 +103,7 @@
       <Content Include="Libs\ServerSync.dll">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
+      <Content Include="LICENSE.txt" />
     </ItemGroup>
     <ItemGroup>
       <None Include="packages.config" />
