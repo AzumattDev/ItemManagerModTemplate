@@ -6,6 +6,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using ItemManager;
 using ServerSync;
+using UnityEngine;
 
 namespace ItemManagerModTemplate
 {
@@ -33,6 +34,7 @@ namespace ItemManagerModTemplate
         {
             _serverConfigLocked = config("General", "Force Server Config", true, "Force Server Config");
             _ = ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
+
             Item ironFangAxe = new("ironfang", "IronFangAxe", "IronFang");
             ironFangAxe.Name.English("Iron Fang Axe"); // You can use this to fix the display name in code
             ironFangAxe.Description.English("A sharp blade made of iron.");
@@ -48,6 +50,16 @@ namespace ItemManagerModTemplate
             ironFangAxe.RequiredUpgradeItems.Add("Silver",
                 10); // 10 Silver: You need 10 silver for level 2, 20 silver for level 3, 30 silver for level 4
             ironFangAxe.CraftAmount = 2; // We really want to dual wield these
+
+
+            // If you have something that shouldn't go into the ObjectDB, like vfx or sfx that only need to be added to ZNetScene
+            GameObject
+                axeVisual = ItemManager.PrefabManager.RegisterPrefab("ironfang",
+                    "axeVisual"); // If our axe has a special visual effect, like a glow, we can skip adding it to the ObjectDB this way
+            GameObject axeSound =
+                ItemManager.PrefabManager.RegisterPrefab("ironfang", "axeSound"); // Same for special sound effects
+
+
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
             SetupWatcher();
