@@ -53,11 +53,12 @@ namespace ItemManagerModTemplate
 
 
             // If you have something that shouldn't go into the ObjectDB, like vfx or sfx that only need to be added to ZNetScene
-            GameObject
-                axeVisual = ItemManager.PrefabManager.RegisterPrefab("ironfang",
-                    "axeVisual"); // If our axe has a special visual effect, like a glow, we can skip adding it to the ObjectDB this way
+            GameObject axeVisual =
+                ItemManager.PrefabManager.RegisterPrefab(PrefabManager.RegisterAssetBundle("ironfang"), "axeVisual",
+                    false); // If our axe has a special visual effect, like a glow, we can skip adding it to the ObjectDB this way
             GameObject axeSound =
-                ItemManager.PrefabManager.RegisterPrefab("ironfang", "axeSound"); // Same for special sound effects
+                ItemManager.PrefabManager.RegisterPrefab(PrefabManager.RegisterAssetBundle("ironfang"), "axeSound",
+                    false); // Same for special sound effects
 
 
             Assembly assembly = Assembly.GetExecutingAssembly();
