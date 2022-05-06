@@ -99,7 +99,6 @@
     </ItemGroup>
     <ItemGroup>
       <Content Include=".gitignore" />
-      <Content Include=".template.config\template.json" />
       <Content Include="ILRepack.targets" />
       <Content Include="Libs\ServerSync.dll">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
