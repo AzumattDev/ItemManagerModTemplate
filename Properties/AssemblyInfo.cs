@@ -5,11 +5,11 @@ using ItemManagerModTemplate;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle(ModTemplatePlugin.ModName)]
+[assembly: AssemblyTitle(ItemManagerModTemplatePlugin.ModName)]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany(ModTemplatePlugin.Author)]
-[assembly: AssemblyProduct(ModTemplatePlugin.ModName)]
+[assembly: AssemblyCompany(ItemManagerModTemplatePlugin.Author)]
+[assembly: AssemblyProduct(ItemManagerModTemplatePlugin.ModName)]
 [assembly: AssemblyCopyright("Copyright ©  2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -32,5 +32,5 @@ using ItemManagerModTemplate;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion(ModTemplatePlugin.ModVersion)]
-[assembly: AssemblyFileVersion(ModTemplatePlugin.ModVersion)]
+[assembly: AssemblyVersion(ItemManagerModTemplatePlugin.ModVersion)]
+[assembly: AssemblyFileVersion(ItemManagerModTemplatePlugin.ModVersion)]

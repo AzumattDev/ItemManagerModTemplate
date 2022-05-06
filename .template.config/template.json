@@ -1,0 +1,33 @@
+﻿{
+  "author": "Azumatt",
+  "classifications": [
+    "Item Manager Mod"
+  ],
+  "name": "ItemManagerModTemplate",
+  "identity": "Item.Manager.Mod.Template",
+  "shortName": "immt",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "ItemManagerModTemplate",
+  "preferNameDirectory": "true",
+  "symbols": {
+    "AuthorName": {
+      "type": "parameter",
+      "description": "The name of the person that you want to call the author.",
+      "datatype": "string",
+      "defaultValue": "azumatt",
+      "replaces": "{azumatt}"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [ ".git/**", ".idea/**", ".vs/**", "obj/**", "bin/**", "ItemManagerModTemplate.sln", "ItemManagerModTemplate.sln.DotSettings.user" ]
+        }
+      ]
+    }
+  ]
+}

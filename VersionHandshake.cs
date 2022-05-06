@@ -10,15 +10,15 @@ namespace ItemManagerModTemplate
         private static void Prefix(ZNetPeer peer, ref ZNet __instance)
         {
             // Register version check call
-            ModTemplatePlugin.ItemManagerModTemplateLogger.LogDebug("Registering version RPC handler");
-            peer.m_rpc.Register($"{ModTemplatePlugin.ModName}_VersionCheck",
-                new Action<ZRpc, ZPackage>(RpcHandlers.RPC_PvPAlwaysOn_Version));
+            ItemManagerModTemplatePlugin.ItemManagerModTemplateLogger.LogDebug("Registering version RPC handler");
+            peer.m_rpc.Register($"{ItemManagerModTemplatePlugin.ModName}_VersionCheck",
+                new Action<ZRpc, ZPackage>(RpcHandlers.RPC_ItemManagerModTemplate_Version));
 
             // Make calls to check versions
-            ModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo("Invoking version check");
+            ItemManagerModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo("Invoking version check");
             ZPackage zpackage = new();
-            zpackage.Write(ModTemplatePlugin.ModVersion);
-            peer.m_rpc.Invoke($"{ModTemplatePlugin.ModName}_VersionCheck", zpackage);
+            zpackage.Write(ItemManagerModTemplatePlugin.ModVersion);
+            peer.m_rpc.Invoke($"{ItemManagerModTemplatePlugin.ModName}_VersionCheck", zpackage);
         }
     }
 
@@ -29,7 +29,7 @@ namespace ItemManagerModTemplate
         {
             if (!__instance.IsServer() || RpcHandlers.ValidatedPeers.Contains(rpc)) return true;
             // Disconnect peer if they didn't send mod version at all
-            ModTemplatePlugin.ItemManagerModTemplateLogger.LogWarning(
+            ItemManagerModTemplatePlugin.ItemManagerModTemplateLogger.LogWarning(
                 $"Peer ({rpc.m_socket.GetHostName()}) never sent version or couldn't due to previous disconnect, disconnecting");
             rpc.Invoke("Error", 3);
             return false; // Prevent calling underlying method
@@ -48,7 +48,7 @@ namespace ItemManagerModTemplate
         private static void Postfix(FejdStartup __instance)
         {
             if (__instance.m_connectionFailedPanel.activeSelf)
-                __instance.m_connectionFailedError.text += "\n" + ModTemplatePlugin.ConnectionError;
+                __instance.m_connectionFailedError.text += "\n" + ItemManagerModTemplatePlugin.ConnectionError;
         }
     }
 
@@ -59,7 +59,7 @@ namespace ItemManagerModTemplate
         {
             if (!__instance.IsServer()) return;
             // Remove peer from validated list
-            ModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo(
+            ItemManagerModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo(
                 $"Peer ({peer.m_rpc.m_socket.GetHostName()}) disconnected, removing from validated list");
             _ = RpcHandlers.ValidatedPeers.Remove(peer.m_rpc);
         }
@@ -69,19 +69,19 @@ namespace ItemManagerModTemplate
     {
         public static readonly List<ZRpc> ValidatedPeers = new();
 
-        public static void RPC_PvPAlwaysOn_Version(ZRpc rpc, ZPackage pkg)
+        public static void RPC_ItemManagerModTemplate_Version(ZRpc rpc, ZPackage pkg)
         {
             string? version = pkg.ReadString();
-            ModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo("Version check, local: " +
-                                                                   ModTemplatePlugin.ModVersion +
+            ItemManagerModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo("Version check, local: " +
+                                                                   ItemManagerModTemplatePlugin.ModVersion +
                                                                    ",  remote: " + version);
-            if (version != ModTemplatePlugin.ModVersion)
+            if (version != ItemManagerModTemplatePlugin.ModVersion)
             {
-                ModTemplatePlugin.ConnectionError =
-                    $"{ModTemplatePlugin.ModName} Installed: {ModTemplatePlugin.ModVersion}\n Needed: {version}";
+                ItemManagerModTemplatePlugin.ConnectionError =
+                    $"{ItemManagerModTemplatePlugin.ModName} Installed: {ItemManagerModTemplatePlugin.ModVersion}\n Needed: {version}";
                 if (!ZNet.instance.IsServer()) return;
                 // Different versions - force disconnect client from server
-                ModTemplatePlugin.ItemManagerModTemplateLogger.LogWarning(
+                ItemManagerModTemplatePlugin.ItemManagerModTemplateLogger.LogWarning(
                     $"Peer ({rpc.m_socket.GetHostName()}) has incompatible version, disconnecting");
                 rpc.Invoke("Error", 3);
             }
@@ -90,12 +90,12 @@ namespace ItemManagerModTemplate
                 if (!ZNet.instance.IsServer())
                 {
                     // Enable mod on client if versions match
-                    ModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo("Received same version from server!");
+                    ItemManagerModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo("Received same version from server!");
                 }
                 else
                 {
                     // Add client to validated list
-                    ModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo(
+                    ItemManagerModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo(
                         $"Adding peer ({rpc.m_socket.GetHostName()}) to validated list");
                     ValidatedPeers.Add(rpc);
                 }

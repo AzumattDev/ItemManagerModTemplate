@@ -11,11 +11,11 @@ using UnityEngine;
 namespace ItemManagerModTemplate
 {
     [BepInPlugin(ModGUID, ModName, ModVersion)]
-    public class ModTemplatePlugin : BaseUnityPlugin
+    public class ItemManagerModTemplatePlugin : BaseUnityPlugin
     {
         internal const string ModName = "ItemManagerModTemplate";
         internal const string ModVersion = "1.0.0";
-        internal const string Author = "azumatt";
+        internal const string Author = "{azumatt}";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
         private static string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
