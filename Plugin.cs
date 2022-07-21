@@ -34,8 +34,10 @@ namespace ItemManagerModTemplate
         {
             _serverConfigLocked = config("General", "Force Server Config", true, "Force Server Config");
             _ = ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
-
-            Item ironFangAxe = new("ironfang", "IronFangAxe", "IronFang");
+            
+            Item ironFangAxe = new("ironfang", "IronFangAxe");  // If your folder name is "assets" like the default. You would use this syntax.
+            // Item ironFangAxe = new("ironfang", "IronFangAxe", "IronFang"); // If your asset is in a custom folder named IronFang and not the default "assets" folder. You would use this syntax.
+             
             ironFangAxe.Name.English("Iron Fang Axe"); // You can use this to fix the display name in code
             ironFangAxe.Description.English("A sharp blade made of iron.");
             ironFangAxe.Name.German("Eisenzahnaxt"); // Or add translations for other languages
@@ -51,6 +53,10 @@ namespace ItemManagerModTemplate
                 10); // 10 Silver: You need 10 silver for level 2, 20 silver for level 3, 30 silver for level 4
             ironFangAxe.CraftAmount = 2; // We really want to dual wield these
 
+            // You can optionally pass in a configuration option of your own to determine if the recipe is enabled or not. To use the example, uncomment both of the lines below.
+            //_recipeIsActiveConfig = config("IronFangAxe", "IsRecipeEnabled",true, "Determines if the recipe is enabled for this prefab");
+            //ironFangAxe.RecipeIsActive = _recipeIsActiveConfig;
+
 
             // If you have something that shouldn't go into the ObjectDB, like vfx or sfx that only need to be added to ZNetScene
             GameObject axeVisual =
@@ -59,6 +65,10 @@ namespace ItemManagerModTemplate
             GameObject axeSound =
                 ItemManager.PrefabManager.RegisterPrefab(PrefabManager.RegisterAssetBundle("ironfang"), "axeSound",
                     false); // Same for special sound effects
+            
+            // You can also pass in a game object to register a prefab. Example blank GameObject created and registered below.
+            GameObject blankGameObject = new GameObject();
+            ItemManager.PrefabManager.RegisterPrefab(blankGameObject, true);
 
 
             Assembly assembly = Assembly.GetExecutingAssembly();
@@ -100,7 +110,8 @@ namespace ItemManagerModTemplate
 
         #region ConfigOptions
 
-        private static ConfigEntry<bool>? _serverConfigLocked;
+        private static ConfigEntry<bool> _serverConfigLocked = null!;
+        private static ConfigEntry<bool>? _recipeIsActiveConfig = null!;
 
         private ConfigEntry<T> config<T>(string group, string name, T value, ConfigDescription description,
             bool synchronizedSetting = true)
