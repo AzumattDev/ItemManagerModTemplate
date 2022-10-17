@@ -59,16 +59,39 @@ namespace ItemManagerModTemplate
 
 
             // If you have something that shouldn't go into the ObjectDB, like vfx or sfx that only need to be added to ZNetScene
-            GameObject axeVisual =
-                ItemManager.PrefabManager.RegisterPrefab(PrefabManager.RegisterAssetBundle("ironfang"), "axeVisual",
+            ItemManager.PrefabManager.RegisterPrefab(PrefabManager.RegisterAssetBundle("ironfang"), "axeVisual",
                     false); // If our axe has a special visual effect, like a glow, we can skip adding it to the ObjectDB this way
-            GameObject axeSound =
-                ItemManager.PrefabManager.RegisterPrefab(PrefabManager.RegisterAssetBundle("ironfang"), "axeSound",
+            ItemManager.PrefabManager.RegisterPrefab(PrefabManager.RegisterAssetBundle("ironfang"), "axeSound",
                     false); // Same for special sound effects
             
             // You can also pass in a game object to register a prefab. Example blank GameObject created and registered below.
             GameObject blankGameObject = new GameObject();
             ItemManager.PrefabManager.RegisterPrefab(blankGameObject, true);
+            
+            
+            Item heroBlade = new("heroset", "HeroBlade");
+            heroBlade.Crafting.Add(CraftingTable.Workbench, 2);
+            heroBlade.RequiredItems.Add("Wood", 5);
+            heroBlade.RequiredItems.Add("DeerHide", 2);
+            heroBlade.RequiredUpgradeItems.Add("Wood", 2);
+            heroBlade.RequiredUpgradeItems.Add("Flint", 2); // You can even add new items for the upgrade
+			
+            Item heroShield = new("heroset", "HeroShield");
+            heroShield["My first recipe"].Crafting.Add(CraftingTable.Workbench, 1); // You can add multiple recipes for the same item, by giving the recipe a name
+            heroShield["My first recipe"].RequiredItems.Add("Wood", 10);
+            heroShield["My first recipe"].RequiredItems.Add("Flint", 5);
+            heroShield["My first recipe"].RequiredUpgradeItems.Add("Wood", 5);
+            heroShield["My alternate recipe"].Crafting.Add(CraftingTable.Forge, 1); // And this is our second recipe then
+            heroShield["My alternate recipe"].RequiredItems.Add("Bronze", 2);
+            heroShield["My alternate recipe"].RequiredUpgradeItems.Add("Bronze", 1);
+            heroShield.Snapshot(); // I don't have an icon for this item in my asset bundle, so I will let the ItemManager generate one automatically
+            // The icon for the item will have the same rotation as the item in unity
+			
+            _ = new Conversion(heroBlade) // For some reason, we want to be able to put a hero shield into a smelter, to get a hero blade
+            {
+                Input = "HeroShield",
+                Piece = ConversionPiece.Smelter
+            };
 
 
             Assembly assembly = Assembly.GetExecutingAssembly();
