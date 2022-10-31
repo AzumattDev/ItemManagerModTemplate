@@ -30,9 +30,16 @@ namespace ItemManagerModTemplate
         private static readonly ConfigSync ConfigSync = new(ModGUID)
             { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
 
+        public enum Toggle
+        {
+            On = 1,
+            Off = 0
+        }
+        
         public void Awake()
         {
-            _serverConfigLocked = config("General", "Force Server Config", true, "Force Server Config");
+            _serverConfigLocked = config("1 - General", "Lock Configuration", Toggle.On,
+                "If on, the configuration is locked and can be changed by server admins only.");
             _ = ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
             
             Item ironFangAxe = new("ironfang", "IronFangAxe");  // If your folder name is "assets" like the default. You would use this syntax.
@@ -54,7 +61,7 @@ namespace ItemManagerModTemplate
             ironFangAxe.CraftAmount = 2; // We really want to dual wield these
 
             // You can optionally pass in a configuration option of your own to determine if the recipe is enabled or not. To use the example, uncomment both of the lines below.
-            //_recipeIsActiveConfig = config("IronFangAxe", "IsRecipeEnabled",true, "Determines if the recipe is enabled for this prefab");
+            //_recipeIsActiveConfig = config("IronFangAxe", "IsRecipeEnabled",Toggle.On, "Determines if the recipe is enabled for this prefab");
             //ironFangAxe.RecipeIsActive = _recipeIsActiveConfig;
 
 
@@ -133,8 +140,8 @@ namespace ItemManagerModTemplate
 
         #region ConfigOptions
 
-        private static ConfigEntry<bool> _serverConfigLocked = null!;
-        private static ConfigEntry<bool>? _recipeIsActiveConfig = null!;
+        private static ConfigEntry<Toggle> _serverConfigLocked = null!;
+        private static ConfigEntry<Toggle> _recipeIsActiveConfig = null!;
 
         private ConfigEntry<T> config<T>(string group, string name, T value, ConfigDescription description,
             bool synchronizedSetting = true)
