@@ -532,8 +532,8 @@ public class Item
 							statcfg("Accuracy", $"Accuracy for {englishName}.", shared => shared.m_attack.m_projectileAccuracy, (shared, value) => shared.m_attack.m_projectileAccuracy = value);
 							statcfg("Minimum Velocity", $"Minimum velocity for {englishName}.", shared => shared.m_attack.m_projectileVelMin, (shared, value) => shared.m_attack.m_projectileVelMin = value);
 							statcfg("Velocity", $"Velocity for {englishName}.", shared => shared.m_attack.m_projectileVel, (shared, value) => shared.m_attack.m_projectileVel = value);
-							statcfg("Maximum Draw Time", $"Time until {englishName} is fully drawn at skill level 0.", shared => shared.m_holdDurationMin, (shared, value) => shared.m_holdDurationMin = value);
-							statcfg("Stamina Drain", $"Stamina drain per second while drawing {englishName}.", shared => shared.m_holdStaminaDrain, (shared, value) => shared.m_holdStaminaDrain = value);
+							statcfg("Maximum Draw Time", $"Time until {englishName} is fully drawn at skill level 0.", shared => shared.m_attack.m_drawDurationMin, (shared, value) => shared.m_attack.m_drawDurationMin = value);
+							statcfg("Stamina Drain", $"Stamina drain per second while drawing {englishName}.", shared => shared.m_attack.m_drawStaminaDrain, (shared, value) => shared.m_attack.m_drawStaminaDrain = value);
 						}
 					}
 				}
