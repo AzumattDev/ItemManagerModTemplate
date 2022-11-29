@@ -23,6 +23,8 @@ public enum CraftingTable
 	[InternalName("forge")] Forge,
 	[InternalName("piece_artisanstation")] ArtisanTable,
 	[InternalName("piece_stonecutter")] StoneCutter,
+	[InternalName("piece_magetable")] MageTable,
+	[InternalName("blackforge")] BlackForge,
 	Custom
 }
 
@@ -35,6 +37,7 @@ public enum ConversionPiece
 	[InternalName("blastfurnace")] BlastFurnace,
 	[InternalName("windmill")] Windmill,
 	[InternalName("piece_spinningwheel")] SpinningWheel,
+	[InternalName("eitrrefinery")] EitrRefinery,
 	Custom
 }
 
@@ -447,15 +450,24 @@ public class Item
 
 					statcfg("Weight", $"Weight of {englishName}.", shared => shared.m_weight, (shared, value) => shared.m_weight = value);
 					statcfg("Trader Value", $"Trader value of {englishName}.", shared => shared.m_value, (shared, value) => shared.m_value = value);
+					if (itemType is ItemDrop.ItemData.ItemType.Consumable)
+					{
+						statcfg("Food", $"Food value of {englishName}.", shared => shared.m_food, (shared, value) => shared.m_food = value);
+						statcfg("Food Stamina", $"Food stamina value of {englishName}.", shared => shared.m_foodStamina, (shared, value) => shared.m_foodStamina = value);
+						statcfg("Food Eitr", $"Food eitr value of {englishName}.", shared => shared.m_foodEitr, (shared, value) => shared.m_foodEitr = value);
+						statcfg("Food Burn Time", $"Food burn time of {englishName}.", shared => shared.m_foodBurnTime, (shared, value) => shared.m_foodBurnTime = value);
+						statcfg("Food Regen", $"Food regen value of {englishName}.", shared => shared.m_foodRegen, (shared, value) => shared.m_foodRegen = value);
+					}
 
-					if (itemType is ItemDrop.ItemData.ItemType.Bow or ItemDrop.ItemData.ItemType.Chest or ItemDrop.ItemData.ItemType.Hands or ItemDrop.ItemData.ItemType.Helmet or ItemDrop.ItemData.ItemType.Legs or ItemDrop.ItemData.ItemType.Shield or ItemDrop.ItemData.ItemType.Shoulder or ItemDrop.ItemData.ItemType.Tool or ItemDrop.ItemData.ItemType.OneHandedWeapon or ItemDrop.ItemData.ItemType.TwoHandedWeapon)
+					if (itemType is ItemDrop.ItemData.ItemType.Bow or ItemDrop.ItemData.ItemType.Chest or ItemDrop.ItemData.ItemType.Hands or ItemDrop.ItemData.ItemType.Helmet or ItemDrop.ItemData.ItemType.Legs or ItemDrop.ItemData.ItemType.Shield or ItemDrop.ItemData.ItemType.Shoulder or ItemDrop.ItemData.ItemType.Tool or ItemDrop.ItemData.ItemType.OneHandedWeapon or ItemDrop.ItemData.ItemType.TwoHandedWeapon or ItemDrop.ItemData.ItemType.TwoHandedWeaponLeft)
 					{
 						statcfg("Durability", $"Durability of {englishName}.", shared => shared.m_maxDurability, (shared, value) => shared.m_maxDurability = value);
 						statcfg("Durability per Level", $"Durability gain per level of {englishName}.", shared => shared.m_durabilityPerLevel, (shared, value) => shared.m_durabilityPerLevel = value);
 						statcfg("Movement Speed Modifier", $"Movement speed modifier of {englishName}.", shared => shared.m_movementModifier, (shared, value) => shared.m_movementModifier = value);
+						statcfg("Eitr Regen Modifier", $"Eitr Regen Modifier of {englishName}.", shared => shared.m_eitrRegenModifier, (shared, value) => shared.m_eitrRegenModifier = value);
 					}
 
-					if (itemType is ItemDrop.ItemData.ItemType.Bow or ItemDrop.ItemData.ItemType.Shield or ItemDrop.ItemData.ItemType.OneHandedWeapon or ItemDrop.ItemData.ItemType.TwoHandedWeapon)
+					if (itemType is ItemDrop.ItemData.ItemType.Bow or ItemDrop.ItemData.ItemType.Shield or ItemDrop.ItemData.ItemType.OneHandedWeapon or ItemDrop.ItemData.ItemType.TwoHandedWeapon or ItemDrop.ItemData.ItemType.TwoHandedWeaponLeft)
 					{
 						statcfg("Tool Tier", $"Tool Tier of {englishName}. Dictates if the object can cut down hard trees.", shared => shared.m_toolTier, (shared, value) => shared.m_toolTier = value);
 						statcfg("Block Armor", $"Block armor of {englishName}.", shared => shared.m_blockPower, (shared, value) => shared.m_blockPower = value);
@@ -512,7 +524,8 @@ public class Item
 							statcfg($"{dmgType} Damage", $"{dmgType} damage dealt by {englishName}.", shared => readDmg(shared.m_damages), (shared, val) => setDmg(ref shared.m_damages, val));
 							statcfg($"{dmgType} Damage Per Level", $"{dmgType} damage dealt increase per level for {englishName}.", shared => readDmg(shared.m_damagesPerLevel), (shared, val) => setDmg(ref shared.m_damagesPerLevel, val));
 						}
-
+						
+						SetDmg("Base", dmg => dmg.m_damage, (ref HitData.DamageTypes dmg, float val) => dmg.m_damage = val);
 						SetDmg("Slash", dmg => dmg.m_slash, (ref HitData.DamageTypes dmg, float val) => dmg.m_slash = val);
 						SetDmg("Pierce", dmg => dmg.m_pierce, (ref HitData.DamageTypes dmg, float val) => dmg.m_pierce = val);
 						SetDmg("Blunt", dmg => dmg.m_blunt, (ref HitData.DamageTypes dmg, float val) => dmg.m_blunt = val);
