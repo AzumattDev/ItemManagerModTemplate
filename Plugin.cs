@@ -1,10 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Reflection;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using ItemManager;
+using JetBrains.Annotations;
 using ServerSync;
 using UnityEngine;
 
@@ -77,18 +79,18 @@ namespace ItemManagerModTemplate
             
             
             Item heroBlade = new("heroset", "HeroBlade");
-            heroBlade.Crafting.Add(CraftingTable.Workbench, 2);
+            heroBlade.Crafting.Add(ItemManager.CraftingTable.Workbench, 2);
             heroBlade.RequiredItems.Add("Wood", 5);
             heroBlade.RequiredItems.Add("DeerHide", 2);
             heroBlade.RequiredUpgradeItems.Add("Wood", 2);
             heroBlade.RequiredUpgradeItems.Add("Flint", 2); // You can even add new items for the upgrade
 			
             Item heroShield = new("heroset", "HeroShield");
-            heroShield["My first recipe"].Crafting.Add(CraftingTable.Workbench, 1); // You can add multiple recipes for the same item, by giving the recipe a name
+            heroShield["My first recipe"].Crafting.Add(ItemManager.CraftingTable.Workbench, 1); // You can add multiple recipes for the same item, by giving the recipe a name
             heroShield["My first recipe"].RequiredItems.Add("Wood", 10);
             heroShield["My first recipe"].RequiredItems.Add("Flint", 5);
             heroShield["My first recipe"].RequiredUpgradeItems.Add("Wood", 5);
-            heroShield["My alternate recipe"].Crafting.Add(CraftingTable.Forge, 1); // And this is our second recipe then
+            heroShield["My alternate recipe"].Crafting.Add(ItemManager.CraftingTable.Forge, 1); // And this is our second recipe then
             heroShield["My alternate recipe"].RequiredItems.Add("Bronze", 2);
             heroShield["My alternate recipe"].RequiredUpgradeItems.Add("Bronze", 1);
             heroShield.Snapshot(); // I don't have an icon for this item in my asset bundle, so I will let the ItemManager generate one automatically
@@ -169,7 +171,10 @@ namespace ItemManagerModTemplate
 
         private class ConfigurationManagerAttributes
         {
-            public bool? Browsable = false;
+            [UsedImplicitly] public int? Order;
+            [UsedImplicitly] public bool? Browsable;
+            [UsedImplicitly] public string? Category;
+            [UsedImplicitly] public Action<ConfigEntryBase>? CustomDrawer;
         }
 
         #endregion
