@@ -1,4 +1,6 @@
-﻿# Item Manager
+﻿## Follow this video to learn how to use this template effectively: https://www.youtube.com/watch?v=ws7Lq8tRWlI&t
+
+# Item Manager
 
 Can be used to easily add new items to Valheim. Will automatically add config options to your mod and sync the configuration from a server, if the mod is installed on the server as well.
 
@@ -68,6 +70,13 @@ namespace Weapons
 			GameObject axeVisual = ItemManager.PrefabManager.RegisterPrefab("ironfang", "axeVisual"); // If our axe has a special visual effect, like a glow, we can skip adding it to the ObjectDB this way
 			GameObject axeSound = ItemManager.PrefabManager.RegisterPrefab("ironfang", "axeSound"); // Same for special sound effects
 			
+			Item heroBlade = new("heroset", "HeroBlade");
+            heroBlade.Crafting.Add(ItemManager.CraftingTable.Workbench, 2);
+            heroBlade.RequiredItems.Add("Wood", 5);
+            heroBlade.RequiredItems.Add("DeerHide", 2);
+            heroBlade.RequiredUpgradeItems.Add("Wood", 2);
+            heroBlade.RequiredUpgradeItems.Add("Flint", 2); // You can even add new items for the upgrade
+			
 			Item heroShield = new("heroset", "HeroShield");
 			heroShield["My first recipe"].Crafting.Add(CraftingTable.Workbench, 1); // You can add multiple recipes for the same item, by giving the recipe a name
 			heroShield["My first recipe"].RequiredItems.Add("Wood", 10);
@@ -84,6 +93,8 @@ namespace Weapons
 				Input = "HeroShield",
 				Piece = ConversionPiece.Smelter
 			};
+			
+			heroShield.DropsFrom.Add("Greydwarf", 0.3f, 1, 2); // A Greydwarf has a 30% chance, to drop 1-2 hero shields.
 		}
 	}
 }
