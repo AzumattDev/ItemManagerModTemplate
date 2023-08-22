@@ -55,16 +55,17 @@ namespace ItemManagerModTemplate
             ironFangAxe.Description.English("A sharp blade made of iron.");
             ironFangAxe.Name.German("Eisenzahnaxt"); // Or add translations for other languages
             ironFangAxe.Description.German("Eine sehr scharfe Axt, bestehend aus Eisen und Wolfszähnen.");
-            ironFangAxe.Crafting.Add("MyAmazingCraftingStation",
-                3); // Custom crafting stations can be specified as a string
+            ironFangAxe.Crafting.Add("MyAmazingCraftingStation", 3); // Custom crafting stations can be specified as a string
             ironFangAxe.RequiredItems.Add("Iron", 120);
             ironFangAxe.RequiredItems.Add("WolfFang", 20);
             ironFangAxe.RequiredItems.Add("Silver", 40);
-            ironFangAxe.RequiredUpgradeItems
-                .Add("Iron", 20); // Upgrade requirements are per item, even if you craft two at the same time
-            ironFangAxe.RequiredUpgradeItems.Add("Silver",
-                10); // 10 Silver: You need 10 silver for level 2, 20 silver for level 3, 30 silver for level 4
+            ironFangAxe.RequiredUpgradeItems.Add("Iron", 20); // Upgrade requirements are per item, even if you craft two at the same time
+            ironFangAxe.RequiredUpgradeItems.Add("Silver", 10); // 10 Silver: You need 10 silver for level 2, 20 silver for level 3, 30 silver for level 4
             ironFangAxe.CraftAmount = 2; // We really want to dual wield these
+            ironFangAxe.Trade.Price = 100; // You can set a price for the item
+            ironFangAxe.Trade.Stack = 10; // And how many you can buy at once
+            ironFangAxe.Trade.RequiredGlobalKey = "defeated_bonemass"; // You can set a global key that is required to buy this item
+            ironFangAxe.Trade.Trader = ItemManager.Trader.Haldor; // You can set a specific trader that sells this item
 
             // You can optionally pass in a configuration option of your own to determine if the recipe is enabled or not. To use the example, uncomment both of the lines below.
             //_recipeIsActiveConfig = config("IronFangAxe", "IsRecipeEnabled",Toggle.On, "Determines if the recipe is enabled for this prefab");

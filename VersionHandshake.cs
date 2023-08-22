@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using HarmonyLib;
 
 namespace ItemManagerModTemplate
@@ -18,6 +22,7 @@ namespace ItemManagerModTemplate
             ItemManagerModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo("Invoking version check");
             ZPackage zpackage = new();
             zpackage.Write(ItemManagerModTemplatePlugin.ModVersion);
+            zpackage.Write(RpcHandlers.ComputeHashForMod().Replace("-", ""));
             peer.m_rpc.Invoke($"{ItemManagerModTemplatePlugin.ModName}_VersionCheck", zpackage);
         }
     }
@@ -37,7 +42,7 @@ namespace ItemManagerModTemplate
 
         private static void Postfix(ZNet __instance)
         {
-            ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestAdminSync",
+            ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), $"{ItemManagerModTemplatePlugin.ModName}RequestAdminSync",
                 new ZPackage());
         }
     }
@@ -76,17 +81,19 @@ namespace ItemManagerModTemplate
         public static void RPC_ItemManagerModTemplate_Version(ZRpc rpc, ZPackage pkg)
         {
             string? version = pkg.ReadString();
+            string? hash = pkg.ReadString();
+
+            var hashForAssembly = ComputeHashForMod().Replace("-", "");
+            
             ItemManagerModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo("Version check, local: " +
-                                                                   ItemManagerModTemplatePlugin.ModVersion +
-                                                                   ",  remote: " + version);
-            if (version != ItemManagerModTemplatePlugin.ModVersion)
+                                                                              ItemManagerModTemplatePlugin.ModVersion +
+                                                                              ",  remote: " + version);
+            if (hash != hashForAssembly || version != ItemManagerModTemplatePlugin.ModVersion)
             {
-                ItemManagerModTemplatePlugin.ConnectionError =
-                    $"{ItemManagerModTemplatePlugin.ModName} Installed: {ItemManagerModTemplatePlugin.ModVersion}\n Needed: {version}";
+                ItemManagerModTemplatePlugin.ConnectionError = $"{ItemManagerModTemplatePlugin.ModName} Installed: {ItemManagerModTemplatePlugin.ModVersion} {hashForAssembly}\n Needed: {version} {hash}";
                 if (!ZNet.instance.IsServer()) return;
                 // Different versions - force disconnect client from server
-                ItemManagerModTemplatePlugin.ItemManagerModTemplateLogger.LogWarning(
-                    $"Peer ({rpc.m_socket.GetHostName()}) has incompatible version, disconnecting");
+                ItemManagerModTemplatePlugin.ItemManagerModTemplateLogger.LogWarning($"Peer ({rpc.m_socket.GetHostName()}) has incompatible version, disconnecting...");
                 rpc.Invoke("Error", 3);
             }
             else
@@ -104,6 +111,21 @@ namespace ItemManagerModTemplate
                     ValidatedPeers.Add(rpc);
                 }
             }
+        }
+
+        public static string ComputeHashForMod()
+        {
+            using SHA256 sha256Hash = SHA256.Create();
+            // ComputeHash - returns byte array  
+            byte[] bytes = sha256Hash.ComputeHash(File.ReadAllBytes(Assembly.GetExecutingAssembly().Location));
+            // Convert byte array to a string   
+            StringBuilder builder = new();
+            foreach (byte b in bytes)
+            {
+                builder.Append(b.ToString("X2"));
+            }
+
+            return builder.ToString();
         }
     }
 }
