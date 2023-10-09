@@ -101,6 +101,9 @@
         <Reference Include="UnityEngine.UI">
             <HintPath>$(CorlibPath)\UnityEngine.UI.dll</HintPath>
         </Reference>
+        <Reference Include="Unity.TextMeshPro">
+            <HintPath>$(GamePath)\valheim_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+        </Reference>
     </ItemGroup>
     <ItemGroup>
         <Compile Include="ItemManager.cs" />
