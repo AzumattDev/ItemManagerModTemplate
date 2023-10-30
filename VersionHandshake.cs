@@ -22,7 +22,6 @@ namespace ItemManagerModTemplate
             ItemManagerModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo("Invoking version check");
             ZPackage zpackage = new();
             zpackage.Write(ItemManagerModTemplatePlugin.ModVersion);
-            zpackage.Write(RpcHandlers.ComputeHashForMod().Replace("-", ""));
             peer.m_rpc.Invoke($"{ItemManagerModTemplatePlugin.ModName}_VersionCheck", zpackage);
         }
     }
@@ -34,8 +33,7 @@ namespace ItemManagerModTemplate
         {
             if (!__instance.IsServer() || RpcHandlers.ValidatedPeers.Contains(rpc)) return true;
             // Disconnect peer if they didn't send mod version at all
-            ItemManagerModTemplatePlugin.ItemManagerModTemplateLogger.LogWarning(
-                $"Peer ({rpc.m_socket.GetHostName()}) never sent version or couldn't due to previous disconnect, disconnecting");
+            ItemManagerModTemplatePlugin.ItemManagerModTemplateLogger.LogWarning($"Peer ({rpc.m_socket.GetHostName()}) never sent version or couldn't due to previous disconnect, disconnecting");
             rpc.Invoke("Error", 3);
             return false; // Prevent calling underlying method
         }
@@ -81,16 +79,13 @@ namespace ItemManagerModTemplate
         public static void RPC_ItemManagerModTemplate_Version(ZRpc rpc, ZPackage pkg)
         {
             string? version = pkg.ReadString();
-            string? hash = pkg.ReadString();
-
-            var hashForAssembly = ComputeHashForMod().Replace("-", "");
             
             ItemManagerModTemplatePlugin.ItemManagerModTemplateLogger.LogInfo("Version check, local: " +
                                                                               ItemManagerModTemplatePlugin.ModVersion +
                                                                               ",  remote: " + version);
-            if (hash != hashForAssembly || version != ItemManagerModTemplatePlugin.ModVersion)
+            if (version != ItemManagerModTemplatePlugin.ModVersion)
             {
-                ItemManagerModTemplatePlugin.ConnectionError = $"{ItemManagerModTemplatePlugin.ModName} Installed: {ItemManagerModTemplatePlugin.ModVersion} {hashForAssembly}\n Needed: {version} {hash}";
+                ItemManagerModTemplatePlugin.ConnectionError = $"{ItemManagerModTemplatePlugin.ModName} Installed: {ItemManagerModTemplatePlugin.ModVersion}\n Needed: {version}";
                 if (!ZNet.instance.IsServer()) return;
                 // Different versions - force disconnect client from server
                 ItemManagerModTemplatePlugin.ItemManagerModTemplateLogger.LogWarning($"Peer ({rpc.m_socket.GetHostName()}) has incompatible version, disconnecting...");
