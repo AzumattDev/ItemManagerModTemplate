@@ -28,11 +28,9 @@ namespace ItemManagerModTemplate
 
         private readonly Harmony _harmony = new(ModGUID);
 
-        public static readonly ManualLogSource ItemManagerModTemplateLogger =
-            BepInEx.Logging.Logger.CreateLogSource(ModName);
+        public static readonly ManualLogSource ItemManagerModTemplateLogger = BepInEx.Logging.Logger.CreateLogSource(ModName);
 
-        private static readonly ConfigSync ConfigSync = new(ModGUID)
-            { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
+        private static readonly ConfigSync ConfigSync = new(ModGUID) { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
 
         public enum Toggle
         {
@@ -112,6 +110,13 @@ namespace ItemManagerModTemplate
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
             SetupWatcher();
+            
+            // If you want to do something once localization completes, LocalizationManager has a hook for that.
+            /*Localizer.OnLocalizationComplete += () =>
+            {
+                // Do something
+                ItemManagerModTemplateLogger.LogDebug("OnLocalizationComplete called");
+            };*/
         }
 
         private void OnDestroy()
@@ -151,14 +156,9 @@ namespace ItemManagerModTemplate
         private static ConfigEntry<Toggle> _serverConfigLocked = null!;
         private static ConfigEntry<Toggle> _recipeIsActiveConfig = null!;
 
-        private ConfigEntry<T> config<T>(string group, string name, T value, ConfigDescription description,
-            bool synchronizedSetting = true)
+        private ConfigEntry<T> config<T>(string group, string name, T value, ConfigDescription description, bool synchronizedSetting = true)
         {
-            ConfigDescription extendedDescription =
-                new(
-                    description.Description +
-                    (synchronizedSetting ? " [Synced with Server]" : " [Not Synced with Server]"),
-                    description.AcceptableValues, description.Tags);
+            ConfigDescription extendedDescription = new(description.Description + (synchronizedSetting ? " [Synced with Server]" : " [Not Synced with Server]"), description.AcceptableValues, description.Tags);
             ConfigEntry<T> configEntry = Config.Bind(group, name, value, extendedDescription);
             //var configEntry = Config.Bind(group, name, value, description);
 
@@ -168,8 +168,7 @@ namespace ItemManagerModTemplate
             return configEntry;
         }
 
-        private ConfigEntry<T> config<T>(string group, string name, T value, string description,
-            bool synchronizedSetting = true)
+        private ConfigEntry<T> config<T>(string group, string name, T value, string description, bool synchronizedSetting = true)
         {
             return config(group, name, value, new ConfigDescription(description), synchronizedSetting);
         }
@@ -187,14 +186,17 @@ namespace ItemManagerModTemplate
     
     public static class KeyboardExtensions
     {
-        public static bool IsKeyDown(this KeyboardShortcut shortcut)
+        extension(KeyboardShortcut shortcut)
         {
-            return shortcut.MainKey != KeyCode.None && Input.GetKeyDown(shortcut.MainKey) && shortcut.Modifiers.All(Input.GetKey);
-        }
+            public bool IsKeyDown()
+            {
+                return shortcut.MainKey != KeyCode.None && Input.GetKeyDown(shortcut.MainKey) && shortcut.Modifiers.All(Input.GetKey);
+            }
 
-        public static bool IsKeyHeld(this KeyboardShortcut shortcut)
-        {
-            return shortcut.MainKey != KeyCode.None && Input.GetKey(shortcut.MainKey) && shortcut.Modifiers.All(Input.GetKey);
+            public bool IsKeyHeld()
+            {
+                return shortcut.MainKey != KeyCode.None && Input.GetKey(shortcut.MainKey) && shortcut.Modifiers.All(Input.GetKey);
+            }
         }
     }
 }
